@@ -52,4 +52,13 @@ jobs:
         run: go build -o passgen .
 
       - name: Verify binary works
-        run: ./passgen --version 2>&1 || echo "Binary built successfully"
+        run: |
+          # Check if binary exists and is executable
+          if [ -x ./passgen ]; then
+            echo "Binary built successfully"
+            # Use --version flag to verify binary works without starting server
+            ./passgen --version
+          else
+            echo "Error: Binary not found or not executable"
+            exit 1
+          fi

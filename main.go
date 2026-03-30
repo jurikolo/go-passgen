@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,7 +11,20 @@ import (
 	"github.com/jurikolo/go-passgen/handler"
 )
 
+const version = "1.0.0"
+
 func main() {
+	// Parse command line flags
+	versionFlag := flag.Bool("version", false, "Print version and exit")
+	vFlag := flag.Bool("v", false, "Print version and exit (shorthand)")
+	flag.Parse()
+
+	// Handle version flags
+	if *versionFlag || *vFlag {
+		fmt.Printf("go-passgen version %s\n", version)
+		os.Exit(0)
+	}
+
 	port := getPort()
 
 	// Setup handlers
