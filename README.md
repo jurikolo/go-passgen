@@ -218,9 +218,5 @@ go test ./...
 ### API Endpoints
 
 - `GET /` - Web interface
-- `GET /api/generate` - Generate a password (accepts `length` and `complexity` query parameters)
+- `POST /api/generate` - Generate a password (accepts `length` and `complexity` query parameters)
 - `GET /health` - Health check endpoint
-
-## License
-
-MIT
