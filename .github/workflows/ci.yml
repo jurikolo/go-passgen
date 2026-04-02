@@ -62,3 +62,27 @@ jobs:
             echo "Error: Binary not found or not executable"
             exit 1
           fi
+
+      - name: Test MCP server
+        run: |
+          cd mcp-server
+          go vet ./...
+          CGO_ENABLED=1 go test ./... -race -coverprofile=coverage-mcp.out
+          # Upload coverage report as artifact (optional)
+          if [ -f coverage-mcp.out ]; then
+            mv coverage-mcp.out ../coverage-mcp.out
+          fi
+
+      - name: Build MCP server binary
+        run: |
+          cd mcp-server
+          go build -o passgen-mcp .
+          # Verify binary works
+          if [ -x ./passgen-mcp ]; then
+            echo "MCP server binary built successfully"
+            # Test with a simple echo (no server start)
+            ./passgen-mcp --help 2>&1 | head -5 || true
+          else
+            echo "Error: MCP server binary not found or not executable"
+            exit 1
+          fi
