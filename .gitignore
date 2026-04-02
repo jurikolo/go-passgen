@@ -33,3 +33,4 @@ go.work.sum
 
 go-passgen
 passgen
+mcp-server/passgen-mcp
