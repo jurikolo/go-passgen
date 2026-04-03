@@ -32,13 +32,15 @@ jobs:
         with:
           sarif_file: snyk-code.sarif
 
+      - name: Build image locally for Dockerfile scan
+        run: docker build -t go-passgen:scan .
+
       - name: Run Snyk to check Dockerfile for issues
         uses: snyk/actions/docker@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          # Snyk will build the image locally for analysis
           image: go-passgen:scan
           args: >
             --file=Dockerfile
@@ -65,10 +67,10 @@ jobs:
           fetch-depth: 0 # Fetch all history for tags
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
