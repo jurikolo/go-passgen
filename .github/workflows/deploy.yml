@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Run Snyk to check for vulnerabilities (source code)
+        id: snyk-code
         uses: snyk/actions/golang@master
         continue-on-error: true
         env:
@@ -28,6 +29,7 @@ jobs:
           args: --sarif-file-output=snyk-code.sarif --severity-threshold=high
 
       - name: Upload Snyk code results to GitHub Security tab
+        if: always() && steps.snyk-code.outcome != 'skipped' && hashFiles('snyk-code.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk-code.sarif
@@ -36,18 +38,18 @@ jobs:
         run: docker build -t go-passgen:scan .
 
       - name: Run Snyk to check Dockerfile for issues
+        id: snyk-docker
         uses: snyk/actions/docker@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: go-passgen:scan
-          args: >
-            --file=Dockerfile
-            --severity-threshold=high
-            --sarif-file-output=snyk-docker.sarif
+          file: Dockerfile
+          args: --severity-threshold=high --sarif-file-output=snyk-docker.sarif
 
       - name: Upload Snyk Dockerfile results to GitHub Security tab
+        if: always() && steps.snyk-docker.outcome != 'skipped' && hashFiles('snyk-docker.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk-docker.sarif
@@ -114,18 +116,18 @@ jobs:
 
       # Snyk container scan of the *pushed* image
       - name: Snyk container scan — main image
+        id: snyk-container
         uses: snyk/actions/docker@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: ghcr.io/${{ github.repository }}:master
-          args: >
-            --file=Dockerfile
-            --severity-threshold=high
-            --sarif-file-output=snyk-container.sarif
+          file: Dockerfile
+          args: --severity-threshold=high --sarif-file-output=snyk-container.sarif
 
       - name: Upload Snyk container scan results to GitHub Security tab
+        if: always() && steps.snyk-container.outcome != 'skipped' && hashFiles('snyk-container.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk-container.sarif
@@ -168,18 +170,18 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Snyk container scan — MCP server image
+        id: snyk-mcp-container
         uses: snyk/actions/docker@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: ghcr.io/${{ github.repository }}/passgen-mcp:master
-          args: >
-            --file=./mcp-server/Dockerfile
-            --severity-threshold=high
-            --sarif-file-output=snyk-mcp-container.sarif
+          file: ./mcp-server/Dockerfile
+          args: --severity-threshold=high --sarif-file-output=snyk-mcp-container.sarif
 
       - name: Upload Snyk MCP container scan results to GitHub Security tab
+        if: always() && steps.snyk-mcp-container.outcome != 'skipped' && hashFiles('snyk-mcp-container.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk-mcp-container.sarif
