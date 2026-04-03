@@ -98,7 +98,7 @@ jobs:
             org.opencontainers.image.version=${{ github.sha }}
             org.opencontainers.image.created=${{ steps.meta.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.licenses=GPL
 
       - name: Build and push Docker image
         id: build
@@ -154,7 +154,7 @@ jobs:
             org.opencontainers.image.version=${{ github.sha }}
             org.opencontainers.image.created=${{ steps.meta-mcp.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.licenses=GPL3.0
 
       - name: Build and push MCP server Docker image
         uses: docker/build-push-action@v7
