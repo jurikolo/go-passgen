@@ -2,6 +2,7 @@
 Sample Go app to try out modern AI features
 
 [![Deploy](https://github.com/jurikolo/go-passgen/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/jurikolo/go-passgen/actions/workflows/deploy.yml)
+[![codecov](https://codecov.io/gh/jurikolo/go-passgen/branch/master/graph/badge.svg)](https://codecov.io/gh/jurikolo/go-passgen)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jurikolo/go-passgen)](https://goreportcard.com/report/github.com/jurikolo/go-passgen)
 [![Known Vulnerabilities](https://snyk.io/test/github/jurikolo/go-passgen/badge.svg)](https://snyk.io/test/github/jurikolo/go-passgen)
 [![GHCR](https://img.shields.io/badge/ghcr.io-jurikolo%2Fgo--passgen-blue?logo=github)](https://github.com/jurikolo/go-passgen/pkgs/container/go-passgen)
