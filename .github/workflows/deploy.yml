@@ -89,7 +89,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=sha-
           labels: |
             org.opencontainers.image.title=go-passgen
             org.opencontainers.image.description=A password generator web application
@@ -145,7 +145,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=sha-
           labels: |
             org.opencontainers.image.title=passgen-mcp
             org.opencontainers.image.description=MCP server for passgen password generator
