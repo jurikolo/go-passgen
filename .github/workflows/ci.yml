@@ -48,15 +48,13 @@ jobs:
           path: coverage.out
           retention-days: 7
 
-      - name: Build binary
+      - name: Build app
         run: go build -o passgen .
 
       - name: Verify binary works
         run: |
-          # Check if binary exists and is executable
           if [ -x ./passgen ]; then
             echo "Binary built successfully"
-            # Use --version flag to verify binary works without starting server
             ./passgen --version
           else
             echo "Error: Binary not found or not executable"
@@ -68,19 +66,16 @@ jobs:
           cd mcp-server
           go vet ./...
           CGO_ENABLED=1 go test ./... -race -coverprofile=coverage-mcp.out
-          # Upload coverage report as artifact (optional)
           if [ -f coverage-mcp.out ]; then
             mv coverage-mcp.out ../coverage-mcp.out
           fi
 
-      - name: Build MCP server binary
+      - name: Build MCP server
         run: |
           cd mcp-server
           go build -o passgen-mcp .
-          # Verify binary works
           if [ -x ./passgen-mcp ]; then
             echo "MCP server binary built successfully"
-            # Test with a simple echo (no server start)
             ./passgen-mcp --help 2>&1 | head -5 || true
           else
             echo "Error: MCP server binary not found or not executable"
