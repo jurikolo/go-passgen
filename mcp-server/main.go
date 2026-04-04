@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -163,10 +164,26 @@ func NewPassgenMCPServer() *server.MCPServer {
 }
 
 func main() {
+	// Parse command line flags
+	httpFlag := flag.Bool("http", false, "Start HTTP server instead of stdio")
+	portFlag := flag.String("port", "8080", "Port for HTTP server (default: 8080)")
+	flag.Parse()
+
 	mcpServer := NewPassgenMCPServer()
 
-	// Start server with stdio transport
-	if err := server.ServeStdio(mcpServer); err != nil {
-		log.Fatalf("Server error: %v", err)
+	if *httpFlag {
+		// Start HTTP server
+		log.Printf("Starting MCP HTTP server on port %s", *portFlag)
+		httpServer := server.NewStreamableHTTPServer(mcpServer)
+		addr := ":" + *portFlag
+		if err := httpServer.Start(addr); err != nil {
+			log.Fatalf("HTTP server error: %v", err)
+		}
+	} else {
+		// Start server with stdio transport (default)
+		log.Println("Starting MCP server with stdio transport")
+		if err := server.ServeStdio(mcpServer); err != nil {
+			log.Fatalf("Server error: %v", err)
+		}
 	}
 }

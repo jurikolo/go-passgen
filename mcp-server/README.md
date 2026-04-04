@@ -37,8 +37,8 @@ Stdio (standard input/output) is the default transport for MCP servers because:
 
 - Exposes a `generate_password` tool with configurable parameters
 - Connects to passgen REST API at configurable base URL
-- Communicates over stdio (standard MCP transport)
-- Docker container support
+- Supports both stdio (default) and HTTP transports
+- Docker container support with HTTP server by default
 
 ## Tool: `generate_password`
 
@@ -67,6 +67,63 @@ Generates random passwords using the passgen API.
   "count": 3
 }
 ```
+
+## HTTP Server
+
+The passgen MCP server now supports HTTP transport in addition to stdio, making it compatible with Ollama's MCP over HTTP feature.
+
+### Starting the HTTP Server
+
+To start the server in HTTP mode, use the `-http` flag and specify a port with `-port`:
+
+```bash
+./passgen-mcp -http -port 8080
+```
+
+The server will start listening on `http://localhost:8080` and expose the MCP endpoints under the `/mcp` path.
+
+### Docker with HTTP
+
+The Docker container now defaults to HTTP mode. When running the container, it will start the HTTP server on port 8080 (configurable via `MCP_PORT` environment variable):
+
+```bash
+docker run -p 8080:8080 -e PASSGEN_URL=http://host.docker.internal:8080 passgen-mcp
+```
+
+You can also override the command to use stdio if needed:
+
+```bash
+docker run -i -e PASSGEN_URL=http://host.docker.internal:8080 passgen-mcp
+```
+
+### Connecting Ollama to HTTP MCP Server
+
+Ollama can connect to an HTTP MCP server using the `http` transport. Update your Ollama configuration to point to the HTTP endpoint:
+
+**macOS/Linux**: `~/.ollama/mcp/servers/passgen.json`
+**Windows**: `%USERPROFILE%\.ollama\mcp\servers\passgen.json`
+
+```json
+{
+  "mcpServers": {
+    "passgen": {
+      "url": "http://localhost:8080/mcp"
+    }
+  }
+}
+```
+
+Alternatively, use the environment variable:
+
+```bash
+export OLLAMA_MCP_SERVERS='{"passgen":{"url":"http://localhost:8080/mcp"}}'
+ollama run llama3.2
+```
+
+### Command Line Options
+
+- `-http`: Enable HTTP server (default: false, uses stdio)
+- `-port`: Port for HTTP server (default: "8080")
 
 ## Installation
 
@@ -181,10 +238,40 @@ Ollama supports MCP servers through its experimental MCP integration. Here's how
 
 ### Configuration
 
-Create an Ollama MCP configuration file:
+You can configure Ollama to use the passgen MCP server either via stdio (traditional) or HTTP (recommended for better compatibility).
+
+#### Option 1: HTTP Transport (Recommended)
+
+Start the passgen MCP server in HTTP mode first (see [HTTP Server](#http-server) section), then configure Ollama to connect via HTTP:
 
 **macOS/Linux**: `~/.ollama/mcp/servers/passgen.json`
 **Windows**: `%USERPROFILE%\.ollama\mcp\servers\passgen.json`
+
+```json
+{
+  "mcpServers": {
+    "passgen": {
+      "url": "http://localhost:8080/mcp"
+    }
+  }
+}
+```
+
+For Docker container (HTTP mode):
+
+```json
+{
+  "mcpServers": {
+    "passgen": {
+      "url": "http://localhost:8080/mcp"
+    }
+  }
+}
+```
+
+#### Option 2: Stdio Transport (Legacy)
+
+If you prefer stdio transport, use the command-based configuration:
 
 ```json
 {
@@ -199,7 +286,7 @@ Create an Ollama MCP configuration file:
 }
 ```
 
-For Docker container:
+For Docker container (stdio):
 
 ```json
 {
@@ -221,16 +308,31 @@ For Docker container:
 
 ### Starting Ollama with MCP Support
 
-1. **Method 1: Environment variable** (Ollama 0.5.0+):
+#### Using HTTP Transport (Recommended)
+
+1. **Environment variable** (Ollama 0.5.0+):
+   ```bash
+   export OLLAMA_MCP_SERVERS='{"passgen":{"url":"http://localhost:8080/mcp"}}'
+   ollama run llama3.2
+   ```
+
+2. **Configuration file** (Ollama 0.5.0+):
+   Place the configuration file as shown in the [Configuration](#configuration) section and Ollama will automatically load it.
+
+3. **Direct MCP server specification** (HTTP):
+   ```bash
+   ollama run --mcp-server passgen:http://localhost:8080/mcp llama3.2
+   ```
+
+#### Using Stdio Transport (Legacy)
+
+1. **Environment variable**:
    ```bash
    export OLLAMA_MCP_SERVERS='{"passgen":{"command":"/path/to/passgen-mcp","env":{"PASSGEN_URL":"http://localhost:8080"}}}'
    ollama run llama3.2
    ```
 
-2. **Method 2: Configuration file** (Ollama 0.5.0+):
-   Place the configuration file as shown above and Ollama will automatically load it.
-
-3. **Method 3: Direct MCP server specification**:
+2. **Direct MCP server specification** (stdio):
    ```bash
    ollama run --mcp-server passgen:/path/to/passgen-mcp llama3.2
    ```
