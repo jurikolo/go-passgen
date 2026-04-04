@@ -29,7 +29,9 @@ USER appuser
 
 # Set environment variable defaults
 ENV PASSGEN_URL=http://localhost:8080
+ENV MCP_PORT=8080
 
 EXPOSE 8080
 
 ENTRYPOINT ["/app/passgen-mcp"]
+CMD ["-http", "-port", "8080"]
