@@ -309,7 +309,3 @@ mcp-server/
    ```
 
 3. Test with an MCP client or use the example test script.
-
-## License
-
-MIT

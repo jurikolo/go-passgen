@@ -39,13 +39,18 @@ jobs:
         run: go vet ./...
 
       - name: Run tests with race detector and coverage
-        run: CGO_ENABLED=1 go test ./... -race -coverprofile=coverage.out
+        run: CGO_ENABLED=1 go test ./... -race -coverprofile=coverage.txt
+
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage.out
+          path: coverage.txt
           retention-days: 7
 
       - name: Build app
