@@ -165,19 +165,19 @@ func NewPassgenMCPServer() *server.MCPServer {
 
 func main() {
 	// Parse command line flags
-	httpFlag := flag.Bool("http", false, "Start HTTP server instead of stdio")
+	httpFlag := flag.Bool("http", false, "Start HTTP/SSE server instead of stdio")
 	portFlag := flag.String("port", "8080", "Port for HTTP server (default: 8080)")
 	flag.Parse()
 
 	mcpServer := NewPassgenMCPServer()
 
 	if *httpFlag {
-		// Start HTTP server
-		log.Printf("Starting MCP HTTP server on port %s", *portFlag)
-		httpServer := server.NewStreamableHTTPServer(mcpServer)
+		// Start SSE server (compatible with Open WebUI and most MCP clients)
+		log.Printf("Starting MCP SSE server on port %s", *portFlag)
+		sseServer := server.NewSSEServer(mcpServer)
 		addr := ":" + *portFlag
-		if err := httpServer.Start(addr); err != nil {
-			log.Fatalf("HTTP server error: %v", err)
+		if err := sseServer.Start(addr); err != nil {
+			log.Fatalf("SSE server error: %v", err)
 		}
 	} else {
 		// Start server with stdio transport (default)
